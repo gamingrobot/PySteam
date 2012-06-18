@@ -11,16 +11,18 @@ if status == LoginStatus.SteamGuard:
     status = steam.Authenticate(str(username), str(password), str(steamguard))
 
 if status == LoginStatus.LoginSuccessful:
+    poll = steam.Poll()
     friends = steam.GetFriends()
     users = steam.GetUserInfo(friends)
     count = 0
     for user in users:
-        print str(count) + ": Nick: " + str(user.nickname) + " Steamid: " + str(user.steamid)
+        print str(count) + ": Nick: " + user.nickname + " Steamid: " + str(user.steamid)
         count = count + 1
 
-    message = raw_input("Who do you want to msg?: ")
+    msgid = raw_input("Who do you want to msg?: ")
+    msg = raw_input("Message: ")
 
-    steam.SendMessage(users[message], "Python Rocks")
+    steam.SendMessage(users[int(msgid)], msg)
 
 else:
     print "Failed to login!"
