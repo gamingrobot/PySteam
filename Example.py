@@ -2,8 +2,25 @@ from SteamAPI import *
 
 steam = SteamAPI()
 
-print steam.Authenticate("username", "password", "email_auth_code")
+username = raw_input("Username: ")
+password = raw_input("Password: ")
 
-friends = steam.GetFriends()
+status = steam.Authenticate(str(username), str(password), "")
+if status == LoginStatus.SteamGuard:
+    steamguard = raw_input("SteamGuard Code: ")
+    status = steam.Authenticate(str(username), str(password), str(steamguard))
 
-#print steam.message("anotherSteamID", "Sent From Python")
+if status == LoginStatus.LoginSuccessful:
+    friends = steam.GetFriends()
+    users = steam.GetUserInfo(friends)
+    count = 0
+    for user in users:
+        print str(count) + ": Nick: " + str(user.nickname) + " Steamid: " + str(user.steamid)
+        count = count + 1
+
+    message = raw_input("Who do you want to msg?: ")
+
+    steam.SendMessage(users[message], "Python Rocks")
+
+else:
+    print "Failed to login!"

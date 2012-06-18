@@ -276,10 +276,44 @@ class SteamAPI:
             return False
 
     def Poll(self):
-        pass
+        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Poll", {"access_token": self.accessToken, "umqid": self.umqid, "message": self.message})
+        if response != None:
+            if 'error' in response:
+                if str(response['error']) == "OK":
+                    self.message = int(response['messagelast'])
+                    updates = []
+                    for info in response['messages']:
+                        update = Update()
+
+                        update.timestamp = info["timestamp"] if 'timestamp' in info else ""
+                        update.origin = str(info["steamid_from"]) if 'steamid_from' in info else ""
+
+                        ut = str(info["type"]) if 'type' in info else ""
+                        if ut == "saytext" or ut == "my_saytext" or ut == "emote":
+                            update.utype = UpdateType.Emote if ut == "emote" else UpdateType.Message
+                            update.message = str(info["text"]) if 'text' in info else ""
+                            update.localMessage = ut == "my_saytext"
+                        elif ut == "typing":
+                            update.utype = UpdateType.TypingNotification
+                            update.message = str(info["text"]) if 'text' in info else ""  # Not sure if this is useful
+                        elif ut == "personastate":
+                            update.utype = UpdateType.UserUpdate
+                            update.status = int(info["persona_state"]) if 'persona_state' in info else ""
+                            update.nick = str(info["persona_name"]) if 'persona_name' in info else ""
+                        else:
+                            continue
+
+                        updates.append(update)
+                    return updates
+                else:
+                    return None
+            else:
+                return None
+        else:
+            return None
 
     def GetServerInfo(self):
-        response = self.steamRequest("ISteamWebUserPresenceOAuth", "GetServerInfo", {})
+        response = self.steamRequest("ISteamWebAPIUtil", "GetServerInfo", {})
         if response != None:
             if 'servertime' in response:
                 info = ServerInfo()
