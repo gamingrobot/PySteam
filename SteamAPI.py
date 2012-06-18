@@ -187,7 +187,7 @@ class SteamAPI:
                     user.steamid = str(info['steamid']) if 'steamid' in info else ""
                     user.profileVisibility = info['communityvisibilitystate'] if 'communityvisibilitystate' in info else ""
                     user.profileState = int(info['profilestate']) if 'profilestate' in info else ""
-                    user.nickname = str(info['personaname']) if 'personaname' in info else ""
+                    user.nickname = info['personaname'] if 'personaname' in info else ""
                     user.lastLogoff = info['lastlogoff'] if 'lastlogoff' in info else ""
                     user.profileUrl = str(info['profileurl']) if 'profileurl' in info else ""
                     user.status = info['personastate'] if 'personastate' in info else ""
@@ -201,7 +201,7 @@ class SteamAPI:
 
                     user.joinDate = info['timecreated'] if 'timecreated' in info else ""
                     user.primaryGroupId = info['primaryclanid'] if 'primaryclanid' in info else ""
-                    user.realName = str(info['realname']) if 'realname' in info else ""
+                    user.realName = info['realname'] if 'realname' in info else ""
                     user.locationCountryCode = str(info['loccountrycode']) if 'loccountrycode' in info else ""
                     user.locationStateCode = str(info['locstatecode']) if 'locstatecode' in info else ""
                     user.locationCityCode = str(info['loccityid']) if 'loccityid' in info else ""
@@ -251,7 +251,7 @@ class SteamAPI:
         #no idea what it is
         else:
             return False
-        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Message", {"access_token": self.accessToken, "umqid": self.umqid, "type": "typing", "steamid_dst": steamid})
+        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Message", {"access_token": self.accessToken, "umqid": self.umqid, "type": "typing", "steamid_dst": steamid}, True)
         if response != None:
             if 'error' in response:
                 return str(response['error']) == "OK"
@@ -263,12 +263,13 @@ class SteamAPI:
         if isinstance(data, User):
             steamid = data.steamid
         #its a steamid
-        elif type(data) == str or type(data) == int:
+        elif isinstance(data, (str, int, float)):
             steamid = str(data)
         #no idea what it is
         else:
             return False
-        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Message", {"access_token": self.accessToken, "umqid": self.umqid, "type": "saytext", "text": str(message), "steamid_dst": steamid})
+        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Message", {"access_token": self.accessToken, "umqid": self.umqid, "type": "saytext", "text": str(message), "steamid_dst": steamid}, True)
+        print response
         if response != None:
             if 'error' in response:
                 return str(response['error']) == "OK"
@@ -276,7 +277,7 @@ class SteamAPI:
             return False
 
     def Poll(self):
-        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Poll", {"access_token": self.accessToken, "umqid": self.umqid, "message": self.message})
+        response = self.steamRequest("ISteamWebUserPresenceOAuth", "Poll", {"access_token": self.accessToken, "umqid": self.umqid, "message": self.message}, True)
         if response != None:
             if 'error' in response:
                 if str(response['error']) == "OK":
@@ -350,6 +351,7 @@ class SteamAPI:
         response = c.getresponse()
         if response.status == 200:
             data = response.read()
+            #print data
             try:
                 parjson = json.loads(data)
             except:
