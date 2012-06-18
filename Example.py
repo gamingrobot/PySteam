@@ -1,10 +1,10 @@
-from PySteam import *
+from SteamAPI import *
 
-steam = PySteam({"username": "username",
-                 "password": "password",
-                 "email_auth_code": ""})  # Run once to get auth code
+steam = SteamAPI()
 
-print steam.authenticate()
+print Group.steamid
+
+print steam.Authenticate("username", "password", "email_auth_code")
 print steam.chat_login()
 
 print steam.friends()
