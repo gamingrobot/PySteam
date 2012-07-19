@@ -2,6 +2,7 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 from SteamAPI import *
+from ChatBox import *
 
 
 class PySteam:
@@ -18,6 +19,7 @@ class PySteam:
         self.AddListColumn("steamid", 1)
         self.AddListColumn("Status", 2)
         self.friendsList = gtk.ListStore(str, str, str)
+        self.friendsList.set_default_sort_func(None)
         self.friendsView.set_model(self.friendsList)
 
         self.login = self.builder.get_object("loginDlg")
@@ -28,7 +30,6 @@ class PySteam:
     def AddListColumn(self, title, columnId):
         column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=columnId)
         column.set_resizable(True)
-        column.set_sort_column_id(columnId)
         self.friendsView.append_column(column)
 
     def userStatusToString(self, status):
@@ -43,9 +44,15 @@ class PySteam:
         elif status == UserStatus.Offline:
             return "Offline"
 
-
     def on_windowMain_destroy(self, widget):
         gtk.main_quit()
+
+    def on_friendsView_button_press_event(self, widget, event):
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            pointer = event.window.get_pointer()
+            selection = widget.get_path_at_pos(pointer[0], pointer[1])
+            index = selection[0][0]
+            ChatBox(self.steam, self.users[index])
 
     def on_login_clicked(self, widget):
         usernamef = self.builder.get_object("username")
@@ -68,9 +75,9 @@ class PySteam:
             self.login.hide()
             poll = self.steam.Poll()
             friends = self.steam.GetFriends()
-            users = self.steam.GetUserInfo(friends)
+            self.users = self.steam.GetUserInfo(friends)
             #count = 0
-            for user in users:
+            for user in self.users:
                 self.friendsList.append([user.nickname, user.steamid, self.userStatusToString(user.status)])
 
 if __name__ == '__main__':

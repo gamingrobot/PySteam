@@ -175,6 +175,8 @@
               <object class="GtkTreeView" id="friendsView">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="enable_search">False</property>
+                <signal name="button-press-event" handler="on_friendsView_button_press_event" swapped="no"/>
               </object>
             </child>
           </object>
