@@ -237,6 +237,7 @@ class SteamAPI:
 
                 if len(steamids) > 100:
                     users += self.__getSteamIDsUserInfo(steamids[100:])
+                    #print "OVER 100 STEAM IDS"
                 return users
             else:
                 return None
